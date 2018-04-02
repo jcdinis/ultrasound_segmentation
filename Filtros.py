@@ -20,10 +20,7 @@ from scipy.ndimage.morphology import grey_opening, grey_closing
 
 import scipy
 
-import skimage.filter.rank as rank
-
-import LeeFilter
-from LeeFilter import LeeFilter
+import skimage.filters.rank as rank
 
 
 def Filtro1(matrix_imagem):

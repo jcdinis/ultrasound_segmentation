@@ -15,7 +15,7 @@ import vtk
 from vtk.wx.wxVTKRenderWindowInteractor import wxVTKRenderWindowInteractor
 from vtk.util import numpy_support
 from dcm2mmap import dcm2mmap, make_mask, dcmmf2mmap, dcmmf2mmapVTI
-from skimage.filter import threshold_otsu
+from skimage.filters import threshold_otsu
 
 from wx.lib.pubsub import setuparg1
 
@@ -39,10 +39,7 @@ from smooth_c import smooth
 import floodfill
 from FloatSliderText import FloatSliderText
 
-import GLCM
-
 from scipy import stats
-
 
 from skimage.morphology import watershed
 from skimage.feature import peak_local_max
@@ -1020,14 +1017,11 @@ class Viewer(wx.Panel):
         self.style = style
 
         self.picker = vtk.vtkCellPicker()
-        self.actor = vtk.vtkImageActor()
-        self.actor.PickableOn()
-
-
+        self.actor = None
 
         ren = vtk.vtkRenderer()
         ren.SetBackground((0, 0, 0))
-        ren.AddActor(self.actor)
+        #ren.AddActor(self.actor)
         ren.SetLayer(0)
 
         self.ren = ren
@@ -1216,12 +1210,12 @@ class Viewer(wx.Panel):
                 mask = self.mask[n+1]
 
         elif self.orientation == 'CORONAL':
-                n_array = numpy.array(self.image_input[..., n, ...])
+                n_array = numpy.array(self.image_input[:, n, :])
 
                 mask = self.mask[1:, n+1, 1:]
 
         elif self.orientation == 'SAGITAL':
-                n_array = numpy.array(self.image_input[..., ... ,n])
+                n_array = numpy.array(self.image_input[:, : ,n])
 
                 mask = numpy.array(self.mask[1:, 1:, n+1])
 
@@ -1238,7 +1232,10 @@ class Viewer(wx.Panel):
         self.image = self.do_blend(self.image, self.do_colour_mask(vmask))
 
         if self.actor is None:
+            self.actor = vtk.vtkImageActor()
+            self.actor.PickableOn()
             self.actor.SetInputData(self.image)
+            self.ren.AddActor(self.actor)
         else:
             self.actor.SetInputData(self.image)
 
